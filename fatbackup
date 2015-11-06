@@ -22,7 +22,10 @@ our ($dst, @include, @exclude, %found, $version, %db, $o_h, $o_v,
      %rzips, $nodie, $list, $targetdir, $ts, @cmd
     );
 
-
+our $FILEDB  = 'checksums.db';
+our $CFGDB   = 'config.db';
+our $LOGFILE = 'fatbackup.log';
+our $ZIPNAME = 'backup.zip';
 
 sub usage {
   print STDERR q(
@@ -288,8 +291,8 @@ sub restore {
   my $logfile   = File::Spec->catfile( $rdir, 'restore.log');
   openlogger($logfile);
 
-  my $dbfile = File::Spec->catfile( $rdir, 'checksums.dbmdeep');
-  my $dbcfg  = File::Spec->catfile( $rdir, 'checksums.cfg');
+  my $dbfile = File::Spec->catfile( $rdir, $FILEDB);
+  my $dbcfg  = File::Spec->catfile( $rdir, $CFGDB);
   %db = dbstart($dbfile, $dbcfg);
   my ($targetdir, $targetfile, %zips);
 
@@ -353,8 +356,8 @@ sub listsnapshots {
   my @entries = readdir D;
   foreach my $entry (sort @entries) {
     if ($entry =~ /^\d/) {
-      my $dbfile = File::Spec->catfile($dst, $entry, 'checksums.dbmdeep');
-      my $dbcfg  = File::Spec->catfile($dst, $entry, 'checksums.cfg');
+      my $dbfile = File::Spec->catfile($dst, $entry, $FILEDB);
+      my $dbcfg  = File::Spec->catfile($dst, $entry, $CFGDB);
       if (-e $dbfile) {
 	%db = dbstart($dbfile, $dbcfg);
 	my ($all, $count) = countbygen($entry, %db);
@@ -389,8 +392,8 @@ sub showfile {
 sub listfiles {
   my($dst, $ts) = @_;
 
-  my $dbfile = File::Spec->catfile($dst, 'checksums.dbmdeep');
-  my $dbcfg  = File::Spec->catfile($dst, 'checksums.cfg');
+  my $dbfile = File::Spec->catfile($dst, $FILEDB);
+  my $dbcfg  = File::Spec->catfile($dst, $CFGDB);
   %db = dbstart($dbfile, $dbcfg);
 
   my ($all, $count) = countbygen($ts, %db);
@@ -426,12 +429,12 @@ sub backup {
   # prepare vars
      $ts        = getts();
      $targetdir = File::Spec->catdir( $dst, $ts );
-  my $dbfile    = File::Spec->catfile( $dst, 'checksums.dbmdeep');
-  my $dbcfg     = File::Spec->catfile( $dst, 'checksums.cfg');
-  my $dbcopy    = File::Spec->catfile( $targetdir, 'checksums.dbmdeep');
-  my $cfgcopy   = File::Spec->catfile( $targetdir, 'checksums.cfg');
-  my $logfile   = File::Spec->catfile( $targetdir, 'backup.log');
-     $zipfile   = File::Spec->catfile( $targetdir, 'backup.zip');
+  my $dbfile    = File::Spec->catfile( $dst, $FILEDB);
+  my $dbcfg     = File::Spec->catfile( $dst, $CFGDB);
+  my $dbcopy    = File::Spec->catfile( $targetdir, $FILEDB);
+  my $cfgcopy   = File::Spec->catfile( $targetdir, $CFGDB);
+  my $logfile   = File::Spec->catfile( $targetdir, $LOGFILE);
+     $zipfile   = File::Spec->catfile( $targetdir, $ZIPNAME);
   if ($zip) {
     $archive = Archive::Zip->new();
   }
