@@ -29,7 +29,7 @@ our $ZIPNAME = 'backup.zip';
 
 sub usage {
   print STDERR q(
-usage: $0 [-hvsidnVztrl]
+usage: fatbackup [-hvsidnVztrl]
 
 Backup Options:
  --include -i <dir>    Directories to backup, may occur multiple times.
