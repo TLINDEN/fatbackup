@@ -134,12 +134,12 @@ sub getts {
 
 sub bailout {
   my $msg = shift;
-  logger($msg);
+  logger("ERROR: $msg");
   if ($nodie) {
-    return;
+    return 0;
   }
   else {
-    print STDERR $msg;
+    print STDERR "ERROR: $msg\n";
     exit 1;
   }
 }
@@ -183,17 +183,24 @@ sub getattrstr {
 sub backupfile {
   my ($file, $dir, $target) = @_;
 
-  if ($zip) {
-    my $m = $archive->addFile($file);
-  }
-  else {
-    if (! -d $target) {
-      mkpath($target) or bailout("Could not create target directory $target: $!\n");
+  eval {
+    if ($zip) {
+      my $m = $archive->addFile($file);
     }
-    copy($file, $target) or bailout("Could not copy file $file to directory $target: $!\n");
+    else {
+      if (! -d $target) {
+	mkpath($target) or bailout("Could not create target directory $target: $!\n");
+      }
+      copy($file, $target) or bailout("Could not copy file $file to directory $target: $!\n");
+    }
+  };
+  if ($@) {
+    return bailout($@);
   }
 
   add2db($file, $dir, $target);
+
+  return 1;
 }
 
 sub add2db {
