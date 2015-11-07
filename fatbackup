@@ -134,6 +134,7 @@ sub getts {
 
 sub bailout {
   my $msg = shift;
+  logger($msg);
   if ($nodie) {
     return;
   }
@@ -151,8 +152,8 @@ sub openlogger {
 
 sub logger {
   my $msg = shift;
-  my $tell = sprintf  "%s %s %s\n", scalar localtime(time), $0, $msg;
-  printf $logfh $tell;
+  my $tell = join ' ', (scalar localtime(time), $0, $msg, "\n");
+  print $logfh $tell;
   if ($verbose) {
     print $tell;
   }
@@ -486,7 +487,7 @@ sub backup {
 #
 # main()
 
-$version = 0.02;
+$version = 0.03;
 $nodie = 0;
 @cmd = @ARGV;
 Getopt::Long::Configure( qw(no_ignore_case));
